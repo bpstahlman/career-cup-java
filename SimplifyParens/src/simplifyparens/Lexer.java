@@ -56,7 +56,7 @@ public class Lexer {
     // location: once with leading whitespace, once without. I believe this is a bug in the engine. Vim handles the
     // equivalent regex without the extra field.
     static Pattern reSep = Pattern.compile("(?<!\\s)\\s*(?=[-+*/()])|(?<=[-+*/()])\\s*+|\\s+");
-    static Pattern reVar = Pattern.compile("[a-z]+");
+    static Pattern reVar = Pattern.compile("[a-zA-Z_][a-zA-Z_[0-9]]*");
     Deque<Token> fifo = null;
     Lexer(String s) {
         // Create a FIFO to hold the tokens.
