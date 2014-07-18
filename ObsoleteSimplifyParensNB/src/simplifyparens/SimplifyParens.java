@@ -16,6 +16,7 @@ public class SimplifyParens {
     /**
      * @param args the command line arguments
      */
+    // Usage: java -jar SimplifyParens "(a + b * (c / d - e * (f + g)) - h * (i))"
     public static void main(String[] args) {
         String sexp = String.join("", args);
         Lexer tokener = new Lexer(sexp);
