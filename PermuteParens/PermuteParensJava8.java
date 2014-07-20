@@ -56,10 +56,12 @@ public class PermuteParens {
         // Note: Could simplify client interface by implementing top-level wrappers for both buildTree and cascadeBy.
         root.buildTree(maxDepth, 0, 1);
 
-        // Now that tree is built, convert it to an ordered tree in preparation for output.
-        // Note: There really wasn't any need to build the tree; could simply have generated output during recursion,
-        // but I wanted to have a tree to play with... ;-) Similarly, it's not really necessary to use an ordered list,
-        // but I wanted an easily-described output order.
+        // Now that tree is built, use cascadeBy method to visit each node in DFS traversal, accumulating a single
+        // permutation string at the leaf of each full traversal.
+        // Note: There really isn't any need to visit each node in this way; for that matter, there was no need to build
+        // the tree, since we could simply have generated output during recursion. I'm really just playing around here
+        // (e.g., with Java 8 Functional Interfaces)...
+        // Note: The tree traversal itself ensures the permutations are in sorted order.
         Set<String> perms = new TreeSet<String>();
         root.cascadeBy(maxDepth, 0, "", (Boolean leaf, String path) -> {
             if (leaf)
