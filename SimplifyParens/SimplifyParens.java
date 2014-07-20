@@ -226,7 +226,6 @@ public class SimplifyParens {
     /**
      * @param args the command line arguments
      */
-    // Usage: java -jar SimplifyParens "(a + b * (c / d - e * (f + g)) - h * (i))"
     // Usage: java SimplifyParens "(a * (b / c) - d * ((e * f) / g) * (h - i * (j - k) - l))"
     // Output:
     // Original expression:   (a * (b / c) - d * ((e * f) / g) * (h - i * (j - k) - l))
