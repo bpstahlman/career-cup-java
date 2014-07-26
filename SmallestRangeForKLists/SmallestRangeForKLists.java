@@ -37,68 +37,60 @@ class Range implements Comparable<Range> {
     }
 }
 class RangeFinder {
-    int[][] ll;
-    RangeFinder(List<List<Integer>> ll) {
-        // Convert the collection to a 2D array for convenience.
-        this.ll = new int[ll.size()][];
-        int i = 0;
-        for (List<Integer> li : ll) {
-            this.ll[i] = new int[li.size()];
-            // Copy the values
-            int j = 0;
-            for (int n : li)
-                this.ll[i][j++] = n;
-            i++;
-        }
-        for (int[] ln : this.ll) {
-            for (int n : ln) {
-                //System.out.println(n);
-            }
-        }
-    }
+    List<List<Integer>> ll;
+    RangeFinder(List<List<Integer>> ll) { this.ll = ll; }
     Range find() {
+        List<List<Integer>> subLists = new ArrayList<List<Integer>>();
+        // Initialize the sub-lists to the full lists.
+        // Note: Recursive calls will successively narrow.
+        for (List<Integer> li : ll) subLists.add(li);
+        // Recurse on all numbers in first list to find best range.
+        // Note: Recursion base case updates bestRange if the range it's
+        // produced is better.
         Range bestRange = new Range();
-        int[] minIdxs = new int[ll.length]; // zero init
-        // Recurse on all numbers in first list.
-        for (int i = 0; i < ll[0].length; i++) {
-            int rootVal = ll[0][i];
-            recurse(1, new Range(rootVal, rootVal), bestRange);
-            System.out.println(bestRange);
+        for (int n : subLists.get(0)) {
+            recurse(1, new Range(n, n), bestRange, subLists);
+            System.out.println("Iteration complete. bestRange: " + bestRange);
         }
         return bestRange;
     }
-    void recurse(int listIdx, Range range, Range bestRange) {
-        int nPrev = 0, numVals = ll[listIdx].length, numLists = ll.length;
-        // Loop over numbers in current list.
-        // TODO: Optimize by starting with earliest significant index...
+    void recurse(int listIdx, Range range, Range bestRange, List<List<Integer>> subLists) {
+        List<Integer> subList = subLists.get(listIdx);
+        int nPrev = 0, numVals = subList.size(), numLists = subLists.size();
+        // Loop over (remaining) numbers in current (sub-)list.
         Range ltRange = null, rtRange = null;
-        for (int i = 0; i < numVals; i++) {
-            int n = ll[listIdx][i];
+        int idx = 0;
+        for (int n : subList) {
             if (n >= range.lval) {
-                if (i > 0) {
+                if (idx > 0) {
                     // nPrev must have been < current range's left edge.
                     ltRange = new Range(nPrev, range.rval);
-                    //System.out.println("Created ltRange at i > 0: " + ltRange);
                 }
                 // Current number may or may not widen rightward.
                 rtRange = new Range(range.lval, Integer.max(n, range.rval));
-                //System.out.println("Created rtRange at: " + rtRange);
                 break;
-            } else if (i == numVals - 1) {
+            } else if (idx == numVals - 1) {
                 // This list has only left-widening potential.
                 ltRange = new Range(n, range.rval);
-                //System.out.println("Created lwo ltRange: " + ltRange);
+                break; // Prevent idx increment
             }
             nPrev = n;
+            idx++;
         }
+        // Discard nPrev (if applicable) and earlier numbers.
+        // Assumption: Can't get out of preceding loop without idx pointing to
+        // the index of the first number with potential significance for
+        // subsequent roots.
+        // Rationale: No subsequent root could provide better solution
+        // with nPrev (or earlier) than can current root.
+        subLists.set(listIdx, subList.subList(idx, subList.size()));
+        System.out.println("Narrowing subList " + listIdx + ": " + subLists.get(listIdx));
         if (listIdx + 1 < numLists) {
-            if (ltRange != null) recurse(listIdx + 1, ltRange, bestRange);
-            if (rtRange != null) recurse(listIdx + 1, rtRange, bestRange);
+            if (ltRange != null) recurse(listIdx + 1, ltRange, bestRange, subLists);
+            if (rtRange != null) recurse(listIdx + 1, rtRange, bestRange, subLists);
         } else {
             // Recursion complete. Is either lt or rt range better than
             // current best?
-            if (ltRange != null) System.out.println("lt Leaf: Comparing " + bestRange + " with " + ltRange);
-            if (rtRange != null) System.out.println("rt Leaf: Comparing " + bestRange + " with " + rtRange);
             if (ltRange != null) bestRange.replaceMaybe(ltRange);
             if (rtRange != null) bestRange.replaceMaybe(rtRange);
         }
@@ -111,7 +103,7 @@ public class SmallestRangeForKLists {
         List<List<Integer>> ll = new ArrayList<>(
             Arrays.asList(
                 Arrays.asList(4, 10, 15, 24, 26),
-                Arrays.asList(0, 9, 12, 20),
+                Arrays.asList(0, 9, 12, 23),
                 Arrays.asList(5, 18, 22, 30)));
         Range range = new RangeFinder(ll).find();
     }
